@@ -1,0 +1,16 @@
+h3 Current blog entries
+
+table.adminPosts(width="100%", style="text-align: left;")
+	thead
+		tr
+			th Post ID
+			th Title
+			th Time posted
+	tbody
+		- posts.forEach(function(item){
+		tr
+			td #{item.bid}
+			td 
+				a(href="/blog/show/" + item.bid) #{item.title}
+			td #{item.posted}
+		- })

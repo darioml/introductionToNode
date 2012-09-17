@@ -1,0 +1,15 @@
+!!! 5
+h2 Admin - Add post (!{title})
+
+div.newpost
+	form(method="post")
+		| Title
+		br
+		input(type="text", name="title", value=btitle)
+		br
+		| Content
+		br
+		textarea(name="content", cols="50", rows="6")
+			!{bcontent}
+		br
+		input(type="submit", value="Add")
