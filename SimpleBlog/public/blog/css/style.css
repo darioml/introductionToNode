@@ -1,5 +1,5 @@
 body {
-  background: #f0f0f0;
+  background: #f3f3f3;
 }
 
 a {
@@ -18,6 +18,12 @@ a {
 .error {
 	color: #a90000;
 	font-size: 90%;
+	margin-top: 2px;
+}
+.success {
+	color: #00a900;
+	font-size: 90%;
+	margin-top: 2px;
 }
 
 #title {

@@ -93,8 +93,34 @@ var pages = {
 	} 
 
 	, adminloginpost: function(req, res){
+		req.flash('username');
 		req.flash('username', (req.body.email) ? req.body.email : null);
-		if(req.body && req.body.password && req.body.email){
+		if (req.body.type == "ajax")
+		{
+			var adminuser = db.model('adminUser');
+			adminuser.findOne(
+				  {	  login: 		req.body.email 
+					, password: 	hashString(req.body.password) }
+				, function(err, row){
+
+				if(err){
+					console.log(err);
+					res.end(JSON.stringify({ 'accepted':false, 'error': "Unexpected Error" }));
+				}
+				else {
+					if(row){
+						req.session.loggedIn = true; // register user is logged in
+						res.end(JSON.stringify({ 'accepted':true
+							, 'error': "User not found - try again?"
+							, 'redirect' : basedir + '/admin/login'}));
+					}
+					else{
+						res.end(JSON.stringify({ 'accepted':false, 'error': "User not found - try again?" }));
+					}
+				}
+			});
+		}
+		else if(req.body && req.body.password && req.body.email){
 			var adminuser = db.model('adminUser');
 			adminuser.findOne(
 				  {	  login: 		req.body.email 
@@ -238,6 +264,7 @@ var pages = {
 	}
 
 	, adminlogout: function(req, res){
+		req.flash('username');
 		delete req.session.loggedIn;
 		res.redirect(basedir + '/admin/login');
 	}
