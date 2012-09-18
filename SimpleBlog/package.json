@@ -9,6 +9,7 @@
     "express": "3.0.0rc4",
     "jade": "*",
     "mongoose": "3.x",
-    "session-mongoose" : "*"
+    "session-mongoose" : "*",
+    "connect-flash" : "*"
   }
 }

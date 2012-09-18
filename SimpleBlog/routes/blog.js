@@ -1,4 +1,28 @@
- // Slightly modified: http://mikevalstar.com/Blog/#!/Blog/106/Coding_with_Nodejs_Part_3_Admin_login_with_Mongo_&_Mongoose
+var db = null;
+var basedir = null;
+
+module.exports = function(app, _db, _basedir){
+	db = _db;
+	basedir = _basedir;
+
+	app.get (basedir, pages.home );
+	app.get (basedir + '/show/:id', pages.getBlog );
+
+	app.get (basedir + '/login', pages.adminlogin );
+	app.get (basedir + '/*/login', pages.adminlogin );
+	app.post(basedir + '/login', pages.adminloginpost );
+	app.post(basedir + '/*/login', pages.adminloginpost );
+	app.get (basedir + '/logout', pages.adminlogout);
+	app.get (basedir + '/*/logout', pages.adminlogout);
+
+	app.get (basedir + '/admin', pages.adminhome);
+	app.get (basedir + '/admin/posts/:id', pages.pageblogPosts);
+	app.get (basedir + '/admin/posts', pages.pageblogPosts);
+	app.post (basedir + '/admin/posts/:id', pages.pagemakenewPost);
+	app.post (basedir + '/admin/posts', pages.pagemakenewPost);
+  
+};
+
 var crypto = require('crypto');
 
 function hashString(value) {
@@ -6,59 +30,59 @@ function hashString(value) {
   hash.update(value);
   return hash.digest('hex');
 }
-/*var post = db.model('blogpost');
-			var newpost = new post({
-				bid		: { type: Number, required: true, unique: true, index: true },
-				author	: { type: String },
-				title	: { type: String },
-				content	: { type: String },
-				posted	: { type: Date, index: true, default: Date.now }
+
+var pages = {
+
+	  home:	function(req, res)	{
+		var blogposts = db.model('blogpost');
+
+		blogposts.find().sort('-posted').exec(function(err, rows){
+			if (err) { console.log(err); }
+			
+			res.render('blog/index', {
+				title: 'Admin Index',
+				posts: rows,
+				showFullNav: false
 			});
-			usr.save(function(err){
-				console.log("User added to database");
-				process.exit(0); // Success
-			});*/
-var AdminPages = module.exports = function AdminPages(){};
-
-AdminPages.prototype = {
-
-	  db: null
-
-	, initPages: function(app, db){
-
-		this.db = db;
-		var self = this;
-
-		app.get ('/admin/login', function(req, res) { self.pageLogin(req, res); } );
-		app.post('/admin/login', function(req, res) { self.pageLoginPost(req, res); }  );
-		app.get ('/admin/logout', function(req, res) { self.pageLogout(req, res); }  );
-
-		app.get ('/admin', function(req, res) { self.pageIndex(req, res); } );
-		app.get ('/admin/posts/:id', function(req, res) { self.pageblogPosts(req, res); }  );
-		app.get ('/admin/posts', function(req, res) { self.pageblogPosts(req, res); }  );
-		app.post ('/admin/posts/:id', function(req, res) { self.pagemakenewPost(req, res); }  );
-		app.post ('/admin/posts', function(req, res) { self.pagemakenewPost(req, res); }  );
-
-		app.get('/admin/*', function(req, res) {
-			res.redirect('/admin');
 		})
+	}
+
+	, getBlog: function(req,res)  {
+		if (req.params.id) {
+			var blogposts = db.model('blogpost');
+
+			blogposts.findOne({bid: req.params.id}, function(err, row){
+				if (err) { console.log(err); }
+
+				if (row != null){
+					res.render('blog/show', {
+						title: 'Show Blog',
+						btitle: row.title,
+						bcontent: row.content
+					});
+				}
+				else
+				{
+					res.redirect(basedir);
+				}
+
+			});
+		}
 	}
 
 	, _checkLogin: function(req, res){
 		if(req.session && req.session.loggedIn === true)
 			return true;
 
-		res.redirect('/admin/login');
+		res.redirect(basedir + '/admin/login');
 		return false;
 	}
 
-	, pageLogin: function(req, res){
+	, adminlogin: function(req, res){
 		if(req.session && req.session.loggedIn === true)
 		{
-			res.redirect('/admin');
+			res.redirect(basedir + '/admin');
 		}
-
-		console.log(req.flash);
 
 		res.render('admin/login', {
 			title: 'Login',
@@ -68,10 +92,10 @@ AdminPages.prototype = {
 		});
 	} 
 
-	, pageLoginPost: function(req, res){
+	, adminloginpost: function(req, res){
 		req.flash('username', (req.body.email) ? req.body.email : null);
 		if(req.body && req.body.password && req.body.email){
-			var adminuser = this.db.model('adminUser');
+			var adminuser = db.model('adminUser');
 			adminuser.findOne(
 				  {	  login: 		req.body.email 
 					, password: 	hashString(req.body.password) }
@@ -79,29 +103,29 @@ AdminPages.prototype = {
 
 				if(err){
 					req.flash('loginError', err);
-					res.redirect('/admin/login');		
+					res.redirect(basedir + '/admin/login');		
 				}
 				else {
 					if(row){
 						req.session.loggedIn = true; // register user is logged in
-						res.redirect('/admin')
+						res.redirect(basedir + '/admin')
 					}
 					else{
 						req.flash('loginError', 'User not found - try again?');
-						res.redirect('/admin/login');
+						res.redirect(basedir + '/admin/login');
 					}
 				}
 			});
 		}else{
 			req.flash('loginError', 'Provide login details');
-			res.redirect('/admin/login');
+			res.redirect(basedir + '/admin/login');
 		}
 	}
 
-	, pageIndex: function(req, res){
-		if( !this._checkLogin(req, res) ) return;
+	, adminhome: function(req, res){
+		if( !pages._checkLogin(req, res) ) return;
 
-		var blogposts = this.db.model('blogpost');
+		var blogposts = db.model('blogpost');
 
 		blogposts.find().sort('-posted').exec(function(err, rows){
 			if (err) { console.log(err); }
@@ -119,7 +143,7 @@ AdminPages.prototype = {
 
 	, pageblogPosts: function(req, res){
 		if( !this._checkLogin(req, res) ) return;
-		var blogposts = this.db.model('blogpost');
+		var blogposts = db.model('blogpost');
 
 		blogposts.findOne({bid: req.params.id}, function(err, row){
 
@@ -145,7 +169,7 @@ AdminPages.prototype = {
 
 		
 		if (req.body.title && req.body.content){
-			var blogposts = this.db.model('blogpost');
+			var blogposts = db.model('blogpost');
 
 			if (req.params.id)
 			{
@@ -156,7 +180,7 @@ AdminPages.prototype = {
 					}
 					else if (row == null)
 					{
-						res.redirect('/admin/posts/' + req.params.id);
+						res.redirect(basedir + '/admin/posts/' + req.params.id);
 					}
 					else
 					{
@@ -172,7 +196,7 @@ AdminPages.prototype = {
 								}else{
 									console.log("Updated ("+numrows+") blog post(s) at internal id: " + req.body.id);
 								}
-								res.redirect('/admin/posts/' + req.params.id);
+								res.redirect(basedir + '/admin/posts/' + req.params.id);
 							});
 					}
 				});
@@ -204,7 +228,7 @@ AdminPages.prototype = {
 						console.log("User added to database");
 					});
 
-					res.redirect('/admin');
+					res.redirect(basedir + '/admin');
 
 				});
 			}
@@ -213,9 +237,9 @@ AdminPages.prototype = {
 			res.send("there was an error");
 	}
 
-	, pageLogout: function(req, res){
+	, adminlogout: function(req, res){
 		delete req.session.loggedIn;
-		res.redirect('/admin/login');
+		res.redirect(basedir + '/admin/login');
 	}
 
-};
+}

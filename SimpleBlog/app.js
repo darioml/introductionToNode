@@ -7,10 +7,10 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , user = require('./routes/user')
   , http = require('http')
   , path = require('path')
-  , mongoStore = require('session-mongoose');
+  , mongoStore = require('session-mongoose')
+  , flash = require('connect-flash');
 
 var app = express();
 
@@ -20,6 +20,7 @@ app.configure(function(){
   app.set('view engine', 'jade');
   app.use(express.favicon());
   app.use(express.cookieParser());
+  app.use(flash());
 
   var mongooseSessionStore = new mongoStore({
       url: "mongodb://localhost/test",
@@ -40,23 +41,18 @@ app.configure('development', function(){
   app.locals.pretty = true;
 });
 
-//app.get('/', routes.index);
-//app.get('/users', user.list);
-
-
 // Database
 var Database = require('./lib/Database');
 var db = new Database();
 db.connect('mongodb://127.0.0.1/test');
 
-var admin_pages = require('./routes/AdminPages');
-var ap = new admin_pages();
-ap.initPages(app, db);
+require('./routes/blog')(app, db, '/blog'); //starts the blog up
 
 
-var blogpages = require('./routes/BlogPages');
-var bp = new blogpages();
-bp.initPages(app, db, '/blog');
+
+//var blogpages = require('./routes/BlogPages');
+//var bp = new blogpages();
+//bp.initPages(app, db, '/blog');
 
 
 

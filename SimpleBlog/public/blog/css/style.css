@@ -1,0 +1,63 @@
+body {
+  background: #f0f0f0;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.clearboth {
+	clear: both;
+}
+
+#content {
+	width: 400px;
+	margin: 0 auto 0 auto ;
+}
+
+.error {
+	color: #a90000;
+	font-size: 90%;
+}
+
+#title {
+	text-align: center;
+	margin-top: 70px;
+	margin-bottom: 20px;
+	color: rgba(30,30,30,0.8);
+	font: 3em Helvetica, Arial, sans-serif;
+	font-weight: bold;
+    text-shadow: 1px 4px 6px #aaa, 0 0 0 #000, 1px 4px 6px #ccc;
+}
+
+#loginform {
+	background: #ffffff;
+	box-shadow: 0 0 10px 1px rgba(0,0,0,.7);
+	border: thin solid #444;
+	border-radius: 2px;
+}
+
+#container {
+	width: 80%;
+	margin: auto auto;
+	margin-bottom: 10px;
+}
+
+#container input[type=text], #container input[type=password]{
+	width: 100%;
+	border: solid thin #ccc;
+	font-size: 120%;
+	color: #a0a0a0;
+}
+#container input[type=text]:focus, #container input[type=password]:focus{
+	color: #313131;
+}
+
+#container input[type=submit]{
+	width: 100%;
+	text-align: right;
+	border: none;
+	cursor: pointer;
+	background: none;
+	color: #a0a0a0;
+}
