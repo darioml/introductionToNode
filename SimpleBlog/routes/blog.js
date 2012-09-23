@@ -111,7 +111,6 @@ var pages = {
 					if(row){
 						req.session.loggedIn = true; // register user is logged in
 						res.end(JSON.stringify({ 'accepted':true
-							, 'error': "User not found - try again?"
 							, 'redirect' : basedir + '/admin/login'}));
 					}
 					else{

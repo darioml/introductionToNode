@@ -3,7 +3,6 @@ html
 	head
 		title= title
 		link(rel='stylesheet', href='/blog/css/style.css')
-		link(href='http://fonts.googleapis.com/css?family=Bubbler+One', rel='stylesheet', type='text/css')
 	body
 		#content
 			#title Admin Login
@@ -46,7 +45,7 @@ html
 						dataType: "json",
 						data: {'type':'ajax', 'email':$('input[name="email"]').val(), 'password':$('input[name="password"]').val()},
 						beforeSend: function ( xhr ) {
-							$('#status').html('<div class="success">Asking server</div>').hide().fadeIn(150);
+							$('#status').html('<div class="success">Asking the allmighty server...</div>').hide().fadeIn(150);
 						}
 					}).done(function ( data ) {
 						if (data.accepted == true) {
